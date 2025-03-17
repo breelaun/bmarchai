@@ -14,6 +14,7 @@ import ProductShowcase from "@/components/streaming/ProductShowcase";
 import ViewersList from "@/components/streaming/ViewersList";
 import AuctionManager from "@/components/streaming/AuctionManager";
 import { useToast } from "@/components/ui/use-toast";
+import type { Session } from "@/types/session";
 
 // Initialize Agora SDK
 AgoraRTC.setLogLevel(4); // Set log level to ERROR
@@ -72,14 +73,28 @@ const LiveStreamPage = () => {
           stream_url,
           orientation,
           privacy,
-          moderators
+          moderators,
+          completed_at,
+          recording_id
         `)
         .eq('vendor_id', session.user.id)
         .eq('status', 'active')
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
-      return data;
+      
+      // Add required vendor_profiles field to match SessionWithVendor type
+      if (data) {
+        return {
+          ...data,
+          vendor_profiles: [{
+            business_name: "Current Vendor", // Default placeholder value
+            profiles: [{ username: session.user.email || "user" }]
+          }]
+        } as Session;
+      }
+      
+      return null;
     },
     enabled: !!session?.user?.id
   });
