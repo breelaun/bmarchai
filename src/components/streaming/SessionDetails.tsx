@@ -60,6 +60,10 @@ const SessionDetails = ({ session, isRecording, recordingStartTime }: SessionDet
         <p><span className="font-medium">Max Participants:</span> {session.max_participants}</p>
         <p><span className="font-medium">Orientation:</span> {session.orientation || 'Landscape'}</p>
         <p><span className="font-medium">Privacy:</span> {session.privacy || 'Public'}</p>
+        <p><span className="font-medium">Session Type:</span> {session.session_type || 'Free'}</p>
+        {session.price !== undefined && session.price > 0 && (
+          <p><span className="font-medium">Price:</span> ${session.price.toFixed(2)}</p>
+        )}
         
         {session.stream_url && (
           <div className="pt-2">

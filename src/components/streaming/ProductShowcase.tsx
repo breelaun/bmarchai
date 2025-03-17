@@ -6,6 +6,20 @@ import { ShoppingCart, Pencil, Eye, EyeOff, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+
+interface ProductVariant {
+  size?: string;
+  color?: string;
+  quantity: number;
+  price?: number;
+}
 
 interface Product {
   id: string | number;
@@ -14,6 +28,7 @@ interface Product {
   image_url?: string;
   description?: string;
   inventory_count?: number;
+  variants?: ProductVariant[];
 }
 
 interface ProductShowcaseProps {
@@ -24,6 +39,7 @@ interface ProductShowcaseProps {
 
 const ProductShowcase = ({ products, onSelect, selectedProductId }: ProductShowcaseProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedVariant, setSelectedVariant] = useState<Record<string, ProductVariant | null>>({});
 
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,9 +99,67 @@ const ProductShowcase = ({ products, onSelect, selectedProductId }: ProductShowc
                           {product.description}
                         </p>
                       )}
+                      
+                      {product.variants && product.variants.length > 0 && (
+                        <div className="mt-2">
+                          <div className="flex flex-wrap gap-2">
+                            {/* Display size variants if available */}
+                            {product.variants.some(v => v.size) && (
+                              <Select 
+                                onValueChange={(value) => {
+                                  const variant = product.variants?.find(v => v.size === value);
+                                  setSelectedVariant({
+                                    ...selectedVariant,
+                                    [product.id.toString()]: variant || null
+                                  });
+                                }}
+                              >
+                                <SelectTrigger className="h-7 text-xs w-[80px]">
+                                  <SelectValue placeholder="Size" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from(new Set(product.variants.map(v => v.size))).filter(Boolean).map((size) => (
+                                    <SelectItem key={size} value={size as string}>
+                                      {size}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                            
+                            {/* Display color variants if available */}
+                            {product.variants.some(v => v.color) && (
+                              <Select
+                                onValueChange={(value) => {
+                                  const variant = product.variants?.find(v => v.color === value);
+                                  setSelectedVariant({
+                                    ...selectedVariant,
+                                    [product.id.toString()]: variant || null
+                                  });
+                                }}
+                              >
+                                <SelectTrigger className="h-7 text-xs w-[80px]">
+                                  <SelectValue placeholder="Color" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from(new Set(product.variants.map(v => v.color))).filter(Boolean).map((color) => (
+                                    <SelectItem key={color} value={color as string}>
+                                      {color}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex justify-between items-center mt-2">
                         <Badge variant="outline" className="text-xs">
-                          Stock: {product.inventory_count || 'N/A'}
+                          {product.variants ? 
+                            `Variants: ${product.variants.length}` : 
+                            `Stock: ${product.inventory_count || 'N/A'}`
+                          }
                         </Badge>
                         <Button 
                           variant={selectedProductId === product.id.toString() ? "secondary" : "outline"} 

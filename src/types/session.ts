@@ -15,12 +15,30 @@ export interface SessionWithVendor {
       username: string;
     }>;
   }>;
-  // New streaming-related fields
+  // Streaming-related fields
   stream_key?: string;
   stream_url?: string;
   orientation?: 'landscape' | 'portrait';
   privacy?: 'public' | 'private' | 'practice';
   moderators?: string[];
+  session_type?: 'free' | 'paid';
+  price?: number;
+  session_participants?: Array<{
+    id: string;
+    user_id: string;
+    has_completed: boolean;
+    rating: number | null;
+    tip_amount: number | null;
+    payment_method: string;
+    payment_status: string;
+    payment_confirmed_at: string | null;
+    payment_confirmed_by: string | null;
+    payment_notes: string | null;
+    profiles: {
+      username: string;
+      avatar_url: string | null;
+    };
+  }>;
   products?: Array<{
     id: string;
     name: string;
